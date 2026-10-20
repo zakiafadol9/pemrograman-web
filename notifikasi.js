@@ -1,0 +1,8 @@
+(function(S){'use strict';
+ const visible=()=>S.data.notifications.filter(n=>n.userId===S.user.id||n.userId==='all');
+ S.pages.notifikasi=()=>`${S.head('Pusat Notifikasi','Pembaruan aktivitas yang tercatat ketika prototipe digunakan.',`<button class="btn btn-soft" data-action="notifications-all-read">${S.icon('check')} Tandai Semua Dibaca</button>`)}${S.panel('Aktivitas & Pengingat',`<div class="notification-list">${visible().length?visible().map(n=>`<div class="notification-item ${n.read?'is-read':'unread'}"><span class="notification-icon">${S.icon('bell')}</span><div><strong>${S.esc(n.title)}</strong><p>${S.esc(n.message)}</p><small>${S.datetime(n.at)}</small></div><div class="notification-actions">${!n.read?S.btn('Dibaca','notification-read',n.id,'soft'):''}${S.btn('Buka','notification-open',n.id)}${S.btn('Hapus','notification-delete',n.id)}</div></div>`).join(''):S.empty('Tidak ada notifikasi')}</div>`)}<p class="info-note">Pengingat baru dihitung dan ditampilkan ketika aplikasi dibuka; tidak ada push notification saat browser ditutup.</p>`;
+ S.actions['notification-read']=d=>{const n=visible().find(x=>x.id===d.id);if(n)S.commit(x=>{x.notifications.find(z=>z.id===n.id).read=true;});};
+ S.actions['notifications-all-read']=()=>S.commit(d=>{d.notifications.forEach(x=>{if(x.userId===S.user.id||x.userId==='all')x.read=true;});});
+ S.actions['notification-delete']=d=>{const n=visible().find(x=>x.id===d.id);if(n)S.commit(x=>{x.notifications=x.notifications.filter(z=>z.id!==d.id);});};
+ S.actions['notification-open']=d=>{const n=visible().find(x=>x.id===d.id);if(!n)return;S.commit(x=>{x.notifications.find(z=>z.id===n.id).read=true;});S.navigate(S.auth.canPage(n.route)?n.route:'dashboard');};
+})(window.SISMARA);
